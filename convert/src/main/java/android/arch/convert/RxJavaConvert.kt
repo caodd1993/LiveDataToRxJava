@@ -71,9 +71,8 @@ private class LiveDataObservable<T>(
 ) : Observable<T>() {
 
     override fun subscribeActual(observer: io.reactivex.Observer<in T>) {
-        if (!checkMainThread(observer)) {
-            return
-        }
+        MainThreadDisposable.verifyMainThread()
+
         val relay = RemoveObserverInMainThread(observer)
         observer.onSubscribe(relay)
         liveData.observeForever(relay)
@@ -108,6 +107,8 @@ private class LiveDataCompletable<T>(
         private val allowNull: Boolean = false) : Completable() {
 
     override fun subscribeActual(s: CompletableObserver) {
+        MainThreadDisposable.verifyMainThread()
+
         val relay = CompleteObserver(s)
         s.onSubscribe(relay)
         liveData.observeForever(relay)
